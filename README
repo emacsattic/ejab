@@ -1,0 +1,110 @@
+                          ______    __      __  
+                         / ____/   / /___ _/ /_ 
+                        / __/ __  / / __ `/ __ \
+                       / /___/ /_/ / /_/ / /_/ /
+                      /_____/\____/\__,_/_.___/ 
+
+                      A Jabber Client for Emacs
+
+OVERVIEW
+
+  Jabber is an open source, extensible, modularized, cross platform,
+  instant messaging system.
+
+  Emacs is the extensible, customizable, self-documenting real-time
+  display editor.
+
+  With EJab, you get the best of both worlds.  A Jabber client written
+  entirely in Emacs Lisp, EJab allows you to use your favorite emacs
+  text editing commands to send instant messages to friends on any
+  other IM system that Jabber can connect to.  In addition, EJab is
+  fully customizable, with a hook-based architecture that makes it
+  easy to write add-on modules.
+
+FEATURES
+
+  * Send and receive messages with other Jabber users
+  * Control online presence status (Away, DND, etc.)
+  * View roster with online status in a hierarchical group format
+
+  * Supports the jabber:x:envelope extensions (CC, ReplyTo, etc.)
+  * Supports nested roster groups with the `group/subgroup' format
+  * Compatible with SuperCite for citing replies
+  * Compatible with MailCrypt for signed/encrypted messages
+
+NON-FEATURES
+
+  All these missing features are planned to become a part of EJab in
+  future releases.
+
+  * Digest authentication not supported (uses plain text)
+  * Cannot register a new user on a server
+  * Cannot display or register with new agents and transports
+
+  * Does not support 1-on-1 chat messages
+  * Does not support groupchat
+  * Does not support OOB file transfers
+
+  * Does not support the temporary vCard format
+  * Cannot search user databases
+  * Cannot send or display rich text (XHTML Basic)
+
+INSTALLATION
+
+  EJab doesn't yet have any fancy installation.  Just copy the elisp
+  files to a directory in your emacs `load-path', and add the
+  following line to your emacs initialization file:
+
+    (require 'ejab)
+
+  This loads all the core EJab modules.  Any additional modules you
+  wish to use may have to be loaded separately.  (As of version 0.1.0,
+  there are no additional modules yet.)
+
+CONFIGURATION
+
+  EJab needs to know is your Jabber server, username, and password.
+  It will normally prompt you for these when connecting, but if you
+  prefer not to be asked, you can set any or all of them in your
+  initialization file, as follows:
+
+    (setq ejab-default-server "jabber.org"
+          ejab-default-username "johndoe"
+          ejab-default-password "password")
+
+  You may wish to select a display style in your initialization file:
+
+    (ejab-use-style "popup")
+
+  As of 0.1.0, the available styles are "standard" (the default) and
+  "popup" (more like other graphical IM clients).
+
+USAGE
+
+  By default, EJab installs a global menu in the menu bar, and a
+  global keymap under `C-c j'.  (You can turn these off by setting
+  `ejab-display-global-menu' and/or `ejab-global-map-prefix' before
+  loading EJab.)  Most of the functions should be self-explanatory.
+
+  As of version 0.1.0, EJab has no manual or tutorial describing usage
+  or customization (a more complicated subject).  The documentation
+  strings of functions and variables are pretty good, though.  Anyone
+  willing to do some documentation work is welcome.
+
+MORE INFO
+
+  Further information, along with the most recent version of EJab, is
+  available from the EJab home page, <http://ejab.sourceforge.net>.
+  In addition, EJab has three mailing lists:
+
+  * ejab-announce, for announcements of new releases
+  * ejab-users, for discussion of usage and configuration
+  * ejab-devel, for those developing the client
+
+  You can subscribe to any or all of these from the EJab project page
+  on SourceForge, which is accessible from the EJab home page.
+
+  For information on Jabber, visit <http://www.jabber.org> (for
+  developers) or <http://www.jabbercentral.com> (for users).  For
+  information on Emacs, try <http://www.gnu.org/software/emacs/> or
+  <http://www.emacs.org>.

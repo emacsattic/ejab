@@ -1,0 +1,20 @@
+-*-text-*-
+                         TO DO LIST FOR EJAB
+                         ===================
+
+* Test clickable users in roster display
+* "Read Next" queuing by user
+* Hide groups with no online users in them?
+* Digest authentication.
+* registering new users
+* 1on1 chat messages
+* groupchat
+* agents/transports.
+* mod_filter
+* Implement more iq and x namespaces (searching, etc.)
+* Rich text (XHTML Basic)
+
+Parsing routines are slow with large text like a reasonably sized
+roster list.  Save state when text is incomplete?
+
+Make subelements namespace-dependent?  How?

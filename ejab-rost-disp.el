@@ -262,7 +262,7 @@ added to all new invisibility spec symbols."
                                      (concat prefix (car group) "/"))))
 
 (defun ejab-roster-display-insert-item (item nesting invis incrs prefix)
-  "Insert a tree layout to display the roster group TREE.
+  "Insert a tree layout to display the roster group ITEM.
 NESTING should be an integer count of how many groups are above this
 one, INVIS a list of symbols to add to the invisibility spec of all
 inserted text, INCRS a list of functions to call to increment the
@@ -277,7 +277,7 @@ added to all new invisibility spec symbols."
         ;; `buffer-invisibility-spec' is compared with `eq', so
         ;; anything in there should be a symbol.
         (usersym
-         (intern (concat prefix (funcall (car element) 'jid)))))
+         (intern (concat prefix (funcall (car item) 'jid)))))
     ;; Insert the user label
     (insert-char ?\  (* 4 nesting))
     (setq button-loc (point))

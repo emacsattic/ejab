@@ -1,5 +1,14 @@
 2001-06-03  Michael Abraham Shulman  <viritrilbia@users.sf.net>
 
+	* ejab-misc.el (ejab-mode-line-format): Show ?? while logging in.
+
+	* ejab-obj.el (error): `type' is incorrect.
+
+	* ejab-connect.el (ejab-send-auth): Fixed digest auth (right session ID).
+	(ejab-receive-auth): Disconnect on authorization error.
+	(ejab-notify-connected): Less confusing info message.
+	(ejab-notify-error): `type' is incorrect.
+
 	* ejab-obj.el (error): Allow `code' AND `type'.
 
 	* ejab-connect.el (ejab-notify-error): Allow `code' AND `type'.

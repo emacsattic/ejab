@@ -157,11 +157,14 @@ This is followed by the current username, if any, the current status,
 if not `available', and the number of queued messages, if any.")
 
 (defvar ejab-mode-line-disconnected-string "--")
+(defvar ejab-mode-line-unauthenticated-string "??")
 
 (defvar ejab-mode-line-format
   '("" ejab-mode-line-string
-    (ejab-connection ejab-current-username
-                     ejab-mode-line-disconnected-string)
+    (ejab-authenticated ejab-current-username
+                        (ejab-connection
+                         ejab-mode-line-unauthenticated-string
+                         ejab-mode-line-disconnected-string))
     (ejab-current-presence-show ("{" ejab-current-presence-show "}"))
     (ejab-queue-count ("[" ejab-queue-count "]"))))
 

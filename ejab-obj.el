@@ -507,7 +507,7 @@ This is actually the the function documentation of `ejab-make-OBJECT'."
 (ejab-defobj vCard ())
 
 ;; <error> elements
-(ejab-defobj error (type code) () t)
+(ejab-defobj error (code) () t)
 
 ;; <query xmlns="..."> elements
 (ejab-defobj-by-namespace query

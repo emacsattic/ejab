@@ -158,7 +158,8 @@ given, in which case prompts for all of them."
                   (erase-buffer)
                   (point-marker))))
 
-  (set-process-buffer ejab-connection (get-buffer-create "*jabber*"))
+;;; This causes problems when reconnecting after disconnecting.
+;;;  (set-process-buffer ejab-connection (get-buffer-create "*jabber*"))
   
   (set-process-filter ejab-connection #'ejab-filter)
   (process-send-string
@@ -169,7 +170,7 @@ xmlns:stream='http://etherx.jabber.org/streams'>"))
   (run-hooks 'ejab-connected-hook))
 
 (defun ejab-notify-connected ()
-  (ejab-notify 2 "Connected to %s:%s"
+  (ejab-notify 2 "Host %s:%s found, logging in..."
                ejab-current-server ejab-current-port))
 (add-hook 'ejab-connected-hook 'ejab-notify-connected)
 
@@ -181,7 +182,9 @@ xmlns:stream='http://etherx.jabber.org/streams'>"))
         (when (eq (process-status ejab-connection) 'open)
           (process-send-string ejab-connection "</stream:stream>")
           (delete-process ejab-connection))
-        (setq ejab-connection nil)
+        (setq ejab-connection nil
+              ejab-authenticated nil
+              ejab-current-session-id nil)
         (run-hooks 'ejab-disconnected-hook))
     (ejab-notify 3 "Not connected to server")))
 
@@ -355,8 +358,7 @@ Useful attributes of that object are `type' and `:text'.")
   "Notify the user that an error was received from the server.
 This is not the same as an Ejab error and is notified with lower
 priority."
-  ;; Sometimes `code' is used, sometimes `type'.  So we allow either.
-  (let ((code (or (funcall err 'type) (funcall err 'code))))
+  (let ((code (funcall err 'code)))
     (ejab-notify 2 "Error %s (%s): %s" code
                  (cdr (assoc code ejab-error-types))
                  (funcall err :text))))
@@ -380,6 +382,11 @@ If nil, plain text passwords are sent instead.")
 
 (defun ejab-send-auth ()
   "Send authentication information to the server."
+  ;; Make sure we have the correct session ID
+  (unless ejab-current-session-id
+    (accept-process-output ejab-connection))
+  ;; Get ready for a response before sending anything
+  (add-hook 'ejab-receive-object-functions #'ejab-receive-auth)
   (funcall
    (ejab-make-iq
     `(id ,(setq ejab-auth-id (ejab-next-id)) type "set")
@@ -408,8 +415,7 @@ If nil, plain text passwords are sent instead.")
                               ejab-current-password)))
              ;; Use plain text authentication
              `(password . ,ejab-current-password))))))
-   :send)
-  (add-hook 'ejab-receive-object-functions #'ejab-receive-auth))
+   :send))
 
 (add-hook 'ejab-connected-hook 'ejab-send-auth)
 
@@ -428,7 +434,9 @@ Return non-nil if OBJ is the desired response."
             (setq ejab-authenticated t)
             (run-hooks 'ejab-authenticated-hook))
         (setq ejab-authenticated nil)
-        (run-hook-with-args 'ejab-error-hooks (obj :=> 'error)))
+        (run-hook-with-args 'ejab-error-hooks (obj :=> 'error))
+        (let ((ejab-disconnected-hook nil)) ; Let the user see the error
+          (ejab-disconnect)))
       (remove-hook 'ejab-receive-object-functions 'ejab-receive-auth)
       t)))
 

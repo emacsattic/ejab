@@ -168,13 +168,13 @@ if not `available', and the number of queued messages, if any.")
 ;; Set up the global-mode-string
 (cond
  ;; Don't do it twice
- ((or (eq global-mode-string 'ejab-mode-line-format)
-      (and (consp global-mode-string)
-           (memq 'ejab-mode-line-format global-mode-string))))
+ ((and (consp global-mode-string)
+       (memq 'ejab-mode-line-format global-mode-string)))
  (global-mode-string
   (setq global-mode-string
         (list "" 'ejab-mode-line-format " " global-mode-string)))
- (t (setq global-mode-string 'ejab-mode-line-format)))
+ (t
+  (setq global-mode-string (list "" 'ejab-mode-line-format " "))))
 
 (defvar ejab-queue-count nil
   "Number of currently queued messages, an integer, or nil if none.")

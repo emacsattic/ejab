@@ -157,6 +157,9 @@ given, in which case prompts for all of them."
                 (with-current-buffer (process-buffer ejab-connection)
                   (erase-buffer)
                   (point-marker))))
+
+  (set-process-buffer ejab-connection (get-buffer-create "*jabber*"))
+  
   (set-process-filter ejab-connection #'ejab-filter)
   (process-send-string
    ejab-connection

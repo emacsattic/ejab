@@ -232,38 +232,51 @@ Each is given one argument, an ejab object of the incoming data.")
 
 (defun ejab-filter (process string)
   "Filter function for the jabber server connection."
-  (when (eq process ejab-connection)
-    ;; kludge to skip stream startup
-    (unless (string-match "^<\\?xml" string)
-      (if (string-match "</stream:stream>" string)
-          (ejab-disconnect)
-        (with-current-buffer (process-buffer process)
-          (save-excursion
-            (goto-char (process-mark process))
-            (insert string)
-            (set-marker (process-mark process) (point)))
-          (let (obj (pos (point)))
-            ;; This function never changes the value of point except
-            ;; to restore it on incomplete input.  `ejab-parse-xml'
-            ;; uses point to keep track of where it is.
-            (catch 'ejab-incomplete-tag
-              ;; This throw is the *only* way the loop is exited.
-              (while t
-                (ejab-notify 0 "Parsing XML...")
-                (setq obj (ejab-parse-xml))
-                (ejab-notify 0 "Parsing XML...tag found")
-                (ejab-notify 0 "Processing %s object..."
-                             (funcall obj :typeof))
-                (run-hook-with-args 'ejab-before-receive-object-hooks obj)
-                (or (run-hook-with-args-until-success
-                     'ejab-receive-object-functions obj)
-                    (ejab-notify 3 "Unhandled response: %s" string))
-                (run-hook-with-args 'ejab-after-receive-object-hooks obj)
-                (ejab-notify 0 "Processing %s object...done"
-                             (funcall obj :typeof))
-                (setq pos (point))))
-            (ejab-notify 0 "Parsing XML...done")
-            (goto-char pos)))))))
+  (cond
+   ;; Sanity check
+   ((not (eq process ejab-connection)))
+
+   ;; Check for the startup string, opening the <stream:stream> tag.
+   ((string-match "^<\\?xml" string)
+    ;; Need to grab the session ID for later use in authentication,
+    ;; but otherwise we can ignore this string.
+    (setq ejab-current-session-id
+          (progn (string-match "id='\\([A-Za-z0-9]+\\)'" string)
+                 (match-string 1 string))))
+
+   ;; Check for ending the connection and <stream:stream> tag.
+   ((string-match "</stream:stream>" string)
+    (ejab-disconnect))
+
+   ;; Otherwise, parse for an XML tag and handle it.
+   (t
+    (with-current-buffer (process-buffer process)
+      (save-excursion
+        (goto-char (process-mark process))
+        (insert string)
+        (set-marker (process-mark process) (point)))
+      (let (obj (pos (point)))
+        ;; This function never changes the value of point except
+        ;; to restore it on incomplete input.  `ejab-parse-xml'
+        ;; uses point to keep track of where it is.
+        (catch 'ejab-incomplete-tag
+          ;; This throw is the *only* way the loop is exited.
+          (while t
+            (ejab-notify 0 "Parsing XML...")
+            (setq obj (ejab-parse-xml))
+            (ejab-notify 0 "Parsing XML...tag found")
+            (ejab-notify 0 "Processing %s object..."
+                         (funcall obj :typeof))
+            (run-hook-with-args 'ejab-before-receive-object-hooks obj)
+            (or (run-hook-with-args-until-success
+                 'ejab-receive-object-functions obj)
+                (ejab-notify 3 "Unhandled response: %s" string))
+            (run-hook-with-args 'ejab-after-receive-object-hooks obj)
+            (ejab-notify 0 "Processing %s object...done"
+                         (funcall obj :typeof))
+            (setq pos (point))))
+        (ejab-notify 0 "Parsing XML...done")
+        (goto-char pos))))))
 
 ;;}}}
 ;;{{{ Send Objects
@@ -304,20 +317,44 @@ within an Emacs session."
 
 (add-hook 'ejab-before-connect-hook 'ejab-reset-id)
 
+(defvar ejab-current-session-id nil
+  "The session ID of the current Jabber connection.
+This is set by the server in the initial <stream:stream> tag and is
+currently used only for digest authentication.")
+
 ;;}}}
 ;;{{{ Error Notification
 
 (defvar ejab-error-hooks '()
   "Abnormal hook run when an error is received from the server.
 Each function receives one argument, an ejab object of type `error'.
-Useful attributes of that object are `code' and `:text'.")
+Useful attributes of that object are `type' and `:text'.")
+
+(defvar ejab-error-types
+  '(("302" . "Redirect")
+    ("400" . "Bad Request")
+    ("401" . "Unauthorized")
+    ("402" . "Payment Required")
+    ("403" . "Forbidden")
+    ("404" . "Not Found")
+    ("405" . "Not Allowed")
+    ("406" . "Not Acceptable")
+    ("407" . "Registration Required")
+    ("408" . "Request Timeout")
+    ("500" . "Internal Server Error")
+    ("501" . "Not Implemented")
+    ("502" . "Remote Server Error")
+    ("503" . "Service Unavailable")
+    ("504" . "Remote Server Timeout"))
+  "Alist of Jabber error types and descriptions.")
 
 (defun ejab-notify-error (err)
-  "Notify the user that an error code was received from the server.
+  "Notify the user that an error was received from the server.
 This is not the same as an Ejab error and is notified with lower
 priority."
-  (ejab-notify 2 "Error: %s %s"
-               (funcall err 'code)
+  (ejab-notify 2 "Error %s (%s): %s"
+               (funcall err 'type)
+               (cdr (assoc (funcall err 'type) ejab-error-types))
                (funcall err :text)))
 
 (add-hook 'ejab-error-hooks #'ejab-notify-error)
@@ -331,6 +368,10 @@ priority."
 (defvar ejab-authenticated nil
   "Whether we have yet successfully authenticated with the server.")
 
+(defvar ejab-use-digest-auth-p t
+  "*Whether to use digest authentication.
+If nil, plain text passwords are sent instead.")
+
 (defvar ejab-auth-id nil)
 
 (defun ejab-send-auth ()
@@ -338,12 +379,31 @@ priority."
   (funcall
    (ejab-make-iq
     `(id ,(setq ejab-auth-id (ejab-next-id)) type "set")
-    `(query ,(ejab-make-query
-              '(xmlns "jabber:iq:auth")
-              `((username . ,ejab-current-username)
-                (resource . ,ejab-current-resource)
-                ;; TODO: Digest authentication
-                (password . ,ejab-current-password)))))
+    `(query
+      ,(ejab-make-query
+        '(xmlns "jabber:iq:auth")
+        `((username . ,ejab-current-username)
+          (resource . ,ejab-current-resource)
+          ;; Use digest authentication if the user requested it, and
+          ;; if SHA1 hashing is available.
+          ,(if (when ejab-use-digest-auth-p
+                 (ignore-errors
+                   (require 'sha1))
+                 (or (fboundp 'sha1)
+                     (fboundp 'sha1-encode)
+                     (progn
+                       (ejab-notify 1 "SHA1 not found, reverting to plain text authentication.")
+                       nil)))
+               ;; Use digest authentication
+               (cons 'digest
+                     (funcall
+                      (if (fboundp 'sha1) #'sha1 #'sha1-encode)
+                      ;; The proper SHA1 hash is the session ID
+                      ;; concatenated with the password.
+                      (concat ejab-current-session-id
+                              ejab-current-password)))
+             ;; Use plain text authentication
+             (password . ,ejab-current-password))))))
    :send)
   (add-hook 'ejab-receive-object-functions #'ejab-receive-auth))
 
@@ -352,14 +412,6 @@ priority."
 (defun ejab-reset-auth ()
   (setq ejab-authenticated nil))
 (add-hook 'ejab-before-connect-hook 'ejab-reset-auth)
-
-;; Here's one way to do a SHA1 hash:
-
-;; (shell-command-to-string
-;;  "perl -MDigest::SHA1=sha1_hex -e 'print sha1_hex(\"password\")'")
-
-;; It requires Perl and Digest::SHA1 to be installed, though.  Also
-;; I'm not sure exactly what the input text is supposed to be.
 
 (defun ejab-receive-auth (obj)
   "Receive authentication information from server.

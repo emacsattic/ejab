@@ -124,6 +124,17 @@ object is used many times in a function."
 (def-edebug-spec ejab-with t)
 
 ;;}}}
+;;{{{ Naming Object-Making Functions
+
+(defun ejab-maker-name (name &optional suffix)
+  "Return the name of the function that makes objects of tyme NAME.
+Normally this is `ejab-make-NAME', but if SUFFIX is non-nil, then it
+is `ejab-make-NAME/SUFFIX'--this is used for namespaces."
+  (intern (if suffix
+              (format "ejab-make-%s/%s" name suffix)
+            (format "ejab-make-%s" name))))
+
+;;}}}
 ;;{{{ Make Caller Functions
 
 (defun ejab-call (&rest args)

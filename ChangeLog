@@ -1,3 +1,7 @@
+2001-06-06  Michael Abraham Shulman  <viritrilbia@users.sf.net>
+
+	* ejab-misc.el: Require CL.
+
 2001-06-04  Michael Abraham Shulman  <viritrilbia@users.sf.net>
 
 	* ejab-rost-disp.el

@@ -145,7 +145,7 @@ If nil, KEYMAP defaults to the value of `current-local-map'.
 `ejab-display-global-menu' should also be set to nil in buffers that
 use such a keymap."
   (or keymap (setq keymap (current-local-map)))
-  (dolist (menu '(buffer files tools edit search mule))
+  (dolist (menu '(buffer files options tools edit search mule))
     (define-key keymap (vector 'menu-bar menu) 'undefined))
   (define-key keymap [menu-bar] ejab-menu))
 

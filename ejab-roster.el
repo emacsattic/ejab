@@ -472,10 +472,13 @@ Return non-nil if OBJ is roster information."
              (funcall obj :=> 'query)
              (string= (funcall obj :-> 'query 'xmlns)
                       "jabber:iq:roster"))
+    (ejab-notify 0 "Receiving roster information")
     (if (member (funcall obj 'type) '("set" "result"))
         (progn
+          (ejab-notify 0 "Updating roster item(s)...")
           (mapc #'ejab-roster-update-item
                 (funcall obj :-> 'query :==> 'item))
+          (ejab-notify 0 "Updating roster item(s)...done")
           (when (and (funcall obj 'id)
                      (eql (string-to-int (funcall obj 'id))
                           ejab-roster-request-id))

@@ -1,3 +1,9 @@
+2001-06-04  Michael Abraham Shulman  <viritrilbia@users.sf.net>
+
+	* ejab-rost-disp.el, ejab-roster.el: Added debugging info messages.
+
+	* ejab-connect.el (ejab-process-buffer): Added variable.
+
 2001-06-03  Michael Abraham Shulman  <viritrilbia@users.sf.net>
 
 	* ejab-draft.el (ejab-draft-mode): Only adjust fill column locally.

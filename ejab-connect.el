@@ -99,6 +99,11 @@ This does not mean successful login--see `ejab-authenticated-hook'.")
 (defvar ejab-connection nil
   "Connection to jabber server as a process object.")
 
+(defvar ejab-process-buffer "*ejab*"
+  "Buffer for the ejab connection process.
+XML received from the server is logged here as well as processed by
+the filter function.")
+
 (defun ejab-connect (&optional server port username password resource)
   "Connect to jabber server if not already connected.
 The parameters SERVER, PORT, USERNAME, PASSWORD, and RESOURCE override
@@ -151,16 +156,13 @@ given, in which case prompts for all of them."
   (run-hooks 'ejab-before-connect-hook)
   ;; Open the connection
   (setq ejab-connection
-        (open-network-stream "jabber" " *jabber*" server port))
+        (open-network-stream "jabber" ejab-process-buffer
+                             server port))
   (set-marker (process-mark ejab-connection)
               (save-excursion
                 (with-current-buffer (process-buffer ejab-connection)
                   (erase-buffer)
                   (point-marker))))
-
-;;; This causes problems when reconnecting after disconnecting.
-;;;  (set-process-buffer ejab-connection (get-buffer-create "*jabber*"))
-  
   (set-process-filter ejab-connection #'ejab-filter)
   (process-send-string
    ejab-connection

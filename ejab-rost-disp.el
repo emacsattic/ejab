@@ -111,12 +111,13 @@ See `ejab-display-buffer-by-spec' for allowable values.")
   "Display the current roster according to `ejab-roster-display-spec'.
 Create and populate the roster display buffer if it does not exist."
   (interactive)
+  (ejab-notify 0 "Displaying roster")
   (ejab-display-buffer-by-spec (or (get-buffer "*JRoster*")
                                    (ejab-roster-display-refresh))
                                ejab-roster-display-spec
                                'ejab-roster-display-finished-hook))
 
-(add-hook 'ejab-roster-received-hook 'ejab-display-roster)
+(add-hook 'ejab-roster-received-hook 'ejab-display-roster t)
 
 (defvar ejab-roster-display-finished-hook '()
   "Hook run after the user is finished with the roster buffer.

@@ -1,5 +1,13 @@
 2001-06-04  Michael Abraham Shulman  <viritrilbia@users.sf.net>
 
+	* ejab-rost-disp.el
+	(ejab-roster-display-insert-item): Fixed variable reference.
+
+	* ejab-utils.el (ejab-maker-name): Moved from ejab-obj.
+
+	* ejab-obj.el (ejab-maker-name): Move to ejab-utils for compiling.
+	(ejab-generic-object): Fixed variable reference.
+
 	* ejab-rost-disp.el, ejab-roster.el: Added debugging info messages.
 
 	* ejab-connect.el (ejab-process-buffer): Added variable.

@@ -1,0 +1,5 @@
+2001-05-23  Michael Abraham Shulman  <viritrilbia@users.sf.net>
+
+	* ejab-misc.el (ejab-mode-line-format): Made `global-mode-string'
+		  always a list, for compatibility.
+

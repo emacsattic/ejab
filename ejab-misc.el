@@ -31,6 +31,8 @@
 
 ;;; Code:
 
+(require 'cl)
+
 ;;{{{ Keymap
 
 ;; First, define the keymap

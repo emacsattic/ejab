@@ -1,3 +1,15 @@
+2001-05-28  Michael Abraham Shulman  <viritrilbia@users.sf.net>
+
+	* ejab-obj.el (error): Use `type' instead of `code'.
+	(iq): `error' is a valid contained tag.
+
+	* ejab-connect.el (ejab-filter): Saved session ID from initial tag.
+	(ejab-current-session-id): Added variable.
+	(ejab-error-types): Added list of error types and descriptions.
+	(ejab-notify-error): Updated to use `type' and descriptions.
+	(ejab-use-digest-auth-p): Added user option.
+	(ejab-send-auth): Use digest authentication if desired and possible.
+
 2001-05-23  Michael Abraham Shulman  <viritrilbia@users.sf.net>
 
 	* ejab-misc.el (ejab-mode-line-format): Made `global-mode-string'

@@ -355,10 +355,11 @@ Useful attributes of that object are `type' and `:text'.")
   "Notify the user that an error was received from the server.
 This is not the same as an Ejab error and is notified with lower
 priority."
-  (ejab-notify 2 "Error %s (%s): %s"
-               (funcall err 'type)
-               (cdr (assoc (funcall err 'type) ejab-error-types))
-               (funcall err :text)))
+  ;; Sometimes `code' is used, sometimes `type'.  So we allow either.
+  (let ((code (or (funcall err 'type) (funcall err 'code))))
+    (ejab-notify 2 "Error %s (%s): %s" code
+                 (cdr (assoc code ejab-error-types))
+                 (funcall err :text))))
 
 (add-hook 'ejab-error-hooks #'ejab-notify-error)
 
@@ -406,7 +407,7 @@ If nil, plain text passwords are sent instead.")
                       (concat ejab-current-session-id
                               ejab-current-password)))
              ;; Use plain text authentication
-             (password . ,ejab-current-password))))))
+             `(password . ,ejab-current-password))))))
    :send)
   (add-hook 'ejab-receive-object-functions #'ejab-receive-auth))
 

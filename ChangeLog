@@ -1,3 +1,10 @@
+2001-06-03  Michael Abraham Shulman  <viritrilbia@users.sf.net>
+
+	* ejab-obj.el (error): Allow `code' AND `type'.
+
+	* ejab-connect.el (ejab-notify-error): Allow `code' AND `type'.
+	(ejab-send-auth): Fixed stupid bug (missing backquote).
+
 2001-05-28  Michael Abraham Shulman  <viritrilbia@users.sf.net>
 
 	* ejab-obj.el (error): Use `type' instead of `code'.

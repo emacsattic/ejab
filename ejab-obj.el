@@ -501,13 +501,13 @@ This is actually the the function documentation of `ejab-make-OBJECT'."
 ;; <iq> elements
 (ejab-defobj iq
   (to from id type)
-  (query vCard))
+  (query error vCard))
 
 ;; At some point we will want to implement this.
 (ejab-defobj vCard ())
 
 ;; <error> elements
-(ejab-defobj error (code) () t)
+(ejab-defobj error (type) () t)
 
 ;; <query xmlns="..."> elements
 (ejab-defobj-by-namespace query

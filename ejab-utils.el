@@ -238,33 +238,44 @@ LIST    New frame \(LIST passed as parameter to `make-frame')
 HOOK should be a hook variable which will be run to restore the
 previous configuration.  An appropriate function will be added to this
 hook to restore the window configuration, delete the frame, etc.  HOOK
-will be buffer-localized if it is not already, and should be run
-before the buffer is killed, if it is to be killed."
+will be buffer-localized if it is not already.  It should be run when
+the buffer is finished, but before it is killed, if it is to be
+killed."
   (unless (equal (current-buffer) (get-buffer buffer))
-    (let ((wconfig (current-window-configuration)))
-      (case spec
-        ((nil)
-         (switch-to-buffer buffer)
-         (add-hook (make-local-hook hook) 'bury-buffer nil t))
-        ((window)
-         (switch-to-buffer-other-window buffer)
-         (set (make-local-variable 'ejab-previous-window-config)
-              wconfig)
-         (add-hook (make-local-hook hook)
-                   'ejab-restore-window-config nil t))
-        ((pop)
-         (pop-to-buffer buffer)
-         (set (make-local-variable 'ejab-previous-window-config)
-              wconfig)
-         (add-hook (make-local-hook hook)
-                   'ejab-restore-window-config nil t))
-        (t
-         (select-frame (make-frame (and (consp spec) spec)))
-         (switch-to-buffer buffer)
-         (set (make-local-variable 'ejab-frame-to-kill)
-              (selected-frame))
-         (add-hook (make-local-hook hook) 'ejab-kill-frame nil t)
-         )))
+    (let* ((wconfig (current-window-configuration))
+           (restorer
+            ;; Switch to the buffer in an appropriate way, and make a
+            ;; note of how to restore configuration when finished.
+            (case spec
+              ;; Use same window, so when done, just bury it.
+              ((nil)
+               (switch-to-buffer buffer)
+               'bury-buffer)
+              ;; Use another window, so restore window configuration.
+              ((window)
+               (switch-to-buffer-other-window buffer)
+               (set (make-local-variable 'ejab-previous-window-config) wconfig)
+               'ejab-restore-window-config)
+              ;; Also uses another window, but in a different way.
+              ((pop)
+               (pop-to-buffer buffer)
+               (set (make-local-variable 'ejab-previous-window-config) wconfig)
+               'ejab-restore-window-config)
+              ;; Use another frame, so kill that frame.
+              (t
+               (select-frame (make-frame (and (consp spec) spec)))
+               (switch-to-buffer buffer)
+               (set (make-local-variable 'ejab-frame-to-kill) (selected-frame))
+               'ejab-kill-frame))))
+      (make-local-hook hook)
+      ;; Remove all previously present restoring functions from the
+      ;; hook, so that we don't try to kill nonexistent frames, etc.
+      (dolist (func '(bury-buffer
+                      ejab-restore-window-config
+                      ejab-kill-frame))
+        (remove-hook hook func t))
+      ;; Add our restoring function to the hook.
+      (add-hook hook restorer nil t))
     (run-hooks buffer-displayed-hook)))
 
 (defvar buffer-displayed-hook nil

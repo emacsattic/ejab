@@ -55,14 +55,6 @@
 
 ;;{{{ Auxiliary Functions
 
-(defun ejab-maker-name (name &optional suffix)
-  "Return the name of the function that makes objects of tyme NAME.
-Normally this is `ejab-make-NAME', but if SUFFIX is non-nil, then it
-is `ejab-make-NAME/SUFFIX'--this is used for namespaces."
-  (intern (if suffix
-              (format "ejab-make-%s/%s" name suffix)
-            (format "ejab-make-%s" name))))
-
 (ejab-define-error ejab-improper-object-type
                    "Improper object type")
 
@@ -190,7 +182,7 @@ arguments they are called with."
            nil)
           ;; If there are too many such tags, propagate the error.
           (ejab-ambiguous-contained-object
-           (signal 'ejab-ambiguous-contained-object (cdr data)))
+           (signal 'ejab-ambiguous-contained-object (cdr var)))
           ;; If no such contained tag is possible, then the
           ;; attribute access is invalid.
           (ejab-invalid-contained-object

@@ -66,7 +66,7 @@
         ))
 
 ;; Now, we decide where to put it.
-(defvar ejab-global-map-prefix "\C-cj"
+(defvar ejab-global-map-prefix "\C-c!"
   "Prefix for Ejab global keymap.
 If nil, ejab commands are not bound to any global key sequences.
 Beware of reserved key sequences when changing this variable: the only

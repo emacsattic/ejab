@@ -1,5 +1,7 @@
 2001-06-03  Michael Abraham Shulman  <viritrilbia@users.sf.net>
 
+	* ejab-draft.el (ejab-draft-mode): Only adjust fill column locally.
+
 	* ejab-misc.el (ejab-mode-line-format): Show ?? while logging in.
 
 	* ejab-obj.el (error): `type' is incorrect.

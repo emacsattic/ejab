@@ -71,7 +71,7 @@ attached commentary \(see `ejab-draft-parse-recipients').  Only the
   (set (make-local-variable 'paragraph-separate)
        "^-+$\\|[ 	\f]*$")
   (add-hook (make-local-hook 'post-command-hook)
-            'ejab-adjust-fill-column)
+            'ejab-adjust-fill-column nil 'local)
   )
 
 (define-key ejab-draft-mode-map "\C-c\C-c" 'ejab-draft-send)

@@ -194,10 +194,8 @@ For internal use only, programs should call \(ITEM :resource)."
 
 (defun ejab-adjust-fill-column ()
   "Set the fill-column to 7/8 of the window width."
-
-  (make-local-variable 'fill-column)
-  
-  (setq fill-column (round (* (window-width) .875))))
+  (set (make-local-variable 'fill-column)
+       (round (* (window-width) .875))))
 
 ;;}}}
 ;;{{{ Display Buffers

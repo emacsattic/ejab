@@ -82,7 +82,7 @@ CONFIGURATION
 USAGE
 
   By default, EJab installs a global menu in the menu bar, and a
-  global keymap under `C-c j'.  (You can turn these off by setting
+  global keymap under `C-c !'.  (You can turn these off by setting
   `ejab-display-global-menu' and/or `ejab-global-map-prefix' before
   loading EJab.)  Most of the functions should be self-explanatory.
 
